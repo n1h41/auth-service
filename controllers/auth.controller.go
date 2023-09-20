@@ -113,7 +113,7 @@ func NewAuthController(router *gin.Engine, authService services.AuthService) {
 		api.GET("/status", controller.Status)
 		api.POST("/register", controller.Register)
 		api.POST("/login", controller.Login)
-		api.POST(("/resetpasswordlink"), controller.GetResetPasswordLink)
-		api.POST(("/resetpassword/:resetCode"), controller.GetResetPasswordLink)
+		api.POST(("/reset-password"), controller.GetResetPasswordLink)
+		api.POST(("/reset-password/:resetCode"), controller.ResetPassword)
 	}
 }

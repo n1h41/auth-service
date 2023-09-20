@@ -7,7 +7,7 @@ type Config struct {
 	DBHost     string `mapstructure:"DB_HOST"`
 	DBPort     string `mapstructure:"DB_PORT"`
 	DBUser     string `mapstructure:"DB_USER"`
-	DBPassword string `mapstructure:"DB_PASSWORD"`
+	DBPassword string `mapstructure:"DB_PASS"`
 	DBName     string `mapstructure:"DB_NAME"`
 	DBSSLMode  string `mapstructure:"DB_SSLMODE"`
 	JwtSecret  string `mapstructure:"JWT_SECRET"`
