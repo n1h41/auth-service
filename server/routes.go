@@ -25,6 +25,7 @@ func SetupRouter(config *config.Config) *gin.Engine {
 	health := controllers.NewHealthController()
 	router.GET("/health", health.GetHealthStatus)
 
+  // INFO: Initialize services and controllers
 	// ****
 	authService := services.NewAuthService(db)
 	controllers.NewAuthController(router, authService)

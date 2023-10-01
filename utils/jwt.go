@@ -1,9 +1,6 @@
 package utils
 
 import (
-	// "fmt"
-	// "n1h41/auth-service/config"
-	"fmt"
 	"n1h41/auth-service/config"
 	"n1h41/auth-service/models"
 
@@ -14,7 +11,6 @@ var jwtSecret = []byte("secret")
 
 func CreateJwtToken(user models.UserModel) (string, error) {
 	config, _ := config.LoadConfig("../")
-  fmt.Println("JWT SECRET:  " + config.JwtSecret)
 	jwtSecret := []byte(config.JwtSecret)
 	claims := jwt.MapClaims{
 		"sub":   user.ID,

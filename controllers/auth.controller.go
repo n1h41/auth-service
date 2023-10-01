@@ -27,17 +27,14 @@ func (controller *authController) Register(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// INFO: Hash password
 	data.Password = string(utils.HashString(data.Password))
-	// INFO: check if user already exists
 	userExists := controller.authService.CheckIfUserExists(data.Email)
 	if userExists {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "User already exists"})
 		return
 	}
-	// INFO: create user
 	serviceResponse := controller.authService.RegisterUser(&data)
-	if serviceResponse.Status == "Error" {
+	if serviceResponse.Status == false {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": serviceResponse.Message})
 		return
 	}
@@ -51,20 +48,17 @@ func (controller *authController) Login(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// INFO: check if user already exists
 	userExists := controller.authService.CheckIfUserExists(data.Email)
 	if !userExists {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "User doesn't exist! Register"})
 		return
 	}
 	fetchedUser := controller.authService.GetUserDetails(data.Email)
-	// TODO: check if password is correct
 	user := controller.authService.GetUserDetails(data.Email)
 	if validPassword := utils.CompareHashAndPassword([]byte(user.Password), []byte(data.Password)); !validPassword {
     c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid password"})
     return
 	}
-	// INFO: create jwt token
 	token, err := utils.CreateJwtToken(fetchedUser)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "Error creating jwt token"})
