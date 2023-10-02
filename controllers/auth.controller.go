@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gopkg.in/mail.v2"
 )
 
 type AuthController interface {
@@ -56,8 +57,8 @@ func (controller *authController) Login(c *gin.Context) {
 	fetchedUser := controller.authService.GetUserDetails(data.Email)
 	user := controller.authService.GetUserDetails(data.Email)
 	if validPassword := utils.CompareHashAndPassword([]byte(user.Password), []byte(data.Password)); !validPassword {
-    c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid password"})
-    return
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid password"})
+		return
 	}
 	token, err := utils.CreateJwtToken(fetchedUser)
 	if err != nil {
@@ -82,9 +83,29 @@ func (controller *authController) GetResetPasswordLink(c *gin.Context) {
 	// TODO: send email with reset password link
 	uuid := utils.GenerateUUID()
 	resetLink := "http://localhost:8080/reset-password/" + uuid
-	c.IndentedJSON(http.StatusOK, gin.H{"status": true, "message": "Resent link created successfully", "data": gin.H{"link": resetLink}})
 
-	// c.IndentedJSON(http.StatusOK, gin.H{"message": "Reset password link sent to your email"})
+	databaseRequest := models.PasswordResetRequest{
+		Email:     data.Email,
+		ResetCode: uuid,
+	}
+
+	databaseResponse := controller.authService.StorePasswordResetCode(&databaseRequest)
+
+	if databaseResponse.Status == false {
+    panic(databaseResponse.Message)
+	}
+
+	mail := mail.NewMessage()
+	mail.SetHeader("From", "auth-service@gmail.com")
+	mail.SetHeader("To", data.Email)
+	mail.SetHeader("Subject", "Reset password link")
+	mail.SetBody("text/html", "<h1>Reset password link</h1><p>Click on the link to reset your password</p><a href='"+resetLink+"'>Reset password</a>")
+
+	if err := utils.SendMail(mail); err != nil {
+    panic(err)
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{"status": true, "message": "Reset password link sent to your email"})
 }
 
 func (controller *authController) ResetPassword(c *gin.Context) {

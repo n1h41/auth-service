@@ -58,7 +58,7 @@ func (s *authService) StorePasswordResetCode(data *models.PasswordResetRequest) 
 	if err != nil {
 		panic(err)
 	}
-	row := s.db.QueryRowx("select * from auth_service__insert_user($1::jsonb)", string(inputData))
+	row := s.db.QueryRowx("select * from auth_service__reset_pass($1::jsonb)", string(inputData))
 	if err := row.StructScan(&databaseResponse); err != nil {
 		println(err.Error())
 	}
