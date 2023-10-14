@@ -11,7 +11,8 @@ type AuthService interface {
 	GetUserDetails(email string) models.UserModel
 	RegisterUser(data *models.RegisterRequest) (databaseResponse models.DatabaseResponse)
 	CheckIfUserExists(email string) bool
-	StorePasswordResetCode(data *models.PasswordResetRequest) models.DatabaseResponse
+	StorePasswordResetCode(data *models.PassResetCodeRequest) models.DatabaseResponse
+  ResetPassword(data *models.PassResetCodeRequest) models.DatabaseResponse
 }
 
 type authService struct {
@@ -53,7 +54,7 @@ func (s *authService) CheckIfUserExists(email string) bool {
 	return false
 }
 
-func (s *authService) StorePasswordResetCode(data *models.PasswordResetRequest) (databaseResponse models.DatabaseResponse) {
+func (s *authService) StorePasswordResetCode(data *models.PassResetCodeRequest) (databaseResponse models.DatabaseResponse) {
 	inputData, err := json.Marshal(data)
 	if err != nil {
 		panic(err)
@@ -63,6 +64,14 @@ func (s *authService) StorePasswordResetCode(data *models.PasswordResetRequest) 
 		println(err.Error())
 	}
 	return databaseResponse
+}
+
+func (s *authService) ResetPassword(data *models.PassResetCodeRequest) (databaseResponse models.DatabaseResponse) {
+  /* inputData, err := json.Marshal(data)
+  if err != nil {
+    panic(err)
+  } */
+  return databaseResponse
 }
 
 // INFO: NewAuthService returns a new instance of AuthService

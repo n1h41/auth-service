@@ -84,7 +84,7 @@ func (controller *authController) GetResetPasswordLink(c *gin.Context) {
 	uuid := utils.GenerateUUID()
 	resetLink := "http://localhost:8080/reset-password/" + uuid
 
-	databaseRequest := models.PasswordResetRequest{
+	databaseRequest := models.PassResetCodeRequest{
 		Email:     data.Email,
 		ResetCode: uuid,
 	}
@@ -110,7 +110,15 @@ func (controller *authController) GetResetPasswordLink(c *gin.Context) {
 
 func (controller *authController) ResetPassword(c *gin.Context) {
 	// TODO: reset password logic
-	println(c.Param("resetCode"))
+  databaseRequest := models.PassResetCodeRequest{
+    Email: c.Query("email"),
+    ResetCode: c.Param("resetCode"),
+  }
+  databaseResponse := controller.authService.ResetPassword(&databaseRequest)
+  if databaseResponse.Status == false {
+    panic(databaseResponse.Message)
+  }
+  c.IndentedJSON(http.StatusOK, gin.H{"status": true, "message": "Password reset successfull"})
 }
 
 func (controller *authController) Status(c *gin.Context) {
@@ -129,6 +137,6 @@ func NewAuthController(router *gin.Engine, authService services.AuthService) {
 		api.POST("/register", controller.Register)
 		api.POST("/login", controller.Login)
 		api.POST(("/reset-password"), controller.GetResetPasswordLink)
-		api.POST(("/reset-password/:resetCode"), controller.ResetPassword)
+		api.GET(("/reset-password/:resetCode"), controller.ResetPassword)
 	}
 }
