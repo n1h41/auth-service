@@ -1,6 +1,6 @@
 package models
 
 type PassResetCodeRequest struct {
-	Email     string `json:"email"`
+	UserId     int64 `json:"user_id"`
 	ResetCode string `json:"reset_code"`
 }

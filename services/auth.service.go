@@ -8,11 +8,11 @@ import (
 )
 
 type AuthService interface {
-	GetUserDetails(email string) models.UserModel
+	GetUserDetails(email string) (user *models.UserModel, err error)
 	RegisterUser(data *models.RegisterRequest) (databaseResponse models.DatabaseResponse)
 	CheckIfUserExists(email string) bool
-	StorePasswordResetCode(data *models.PassResetCodeRequest) models.DatabaseResponse
-  ResetPassword(data *models.PassResetCodeRequest) models.DatabaseResponse
+	StorePasswordResetCode(reset_code string, user_id int) models.DatabaseResponse
+	ResetPassword(data *models.PassResetCodeRequest) models.DatabaseResponse
 }
 
 type authService struct {
@@ -25,25 +25,25 @@ func (s *authService) RegisterUser(data *models.RegisterRequest) (databaseRespon
 		println(err)
 	}
 	inputDataString := string(inputData)
-	row := s.db.QueryRowx("select * from auth_service__insert_user($1::jsonb)", inputDataString)
+	row := s.db.QueryRowx("SELECT * FROM auth_service_register_user($1::jsonb)", inputDataString)
 	if err := row.StructScan(&databaseResponse); err != nil {
 		println(err.Error())
 	}
 	return databaseResponse
 }
 
-func (s *authService) GetUserDetails(email string) models.UserModel {
-	var user models.UserModel
+func (s *authService) GetUserDetails(email string) (user *models.UserModel, err error) {
+	user = &models.UserModel{}
 	row := s.db.QueryRowx("SELECT * FROM users WHERE email = $1", email)
-	if err := row.StructScan(&user); err != nil {
-		println(err.Error())
+	if err := row.StructScan(user); err != nil {
+		return nil, err
 	}
-	return user
+	return user, nil
 }
 
 func (s *authService) CheckIfUserExists(email string) bool {
 	var count int
-	err := s.db.Get(&count, "SELECT COUNT(*) FROM users WHERE email = $1", email)
+	err := s.db.Get(&count, "SELECT 1 FROM users WHERE email = $1", email)
 	if err != nil {
 		println(err.Error())
 		return false
@@ -54,27 +54,23 @@ func (s *authService) CheckIfUserExists(email string) bool {
 	return false
 }
 
-func (s *authService) StorePasswordResetCode(data *models.PassResetCodeRequest) (databaseResponse models.DatabaseResponse) {
-	inputData, err := json.Marshal(data)
+func (s *authService) StorePasswordResetCode(reset_code string, user_id int) (databaseResponse models.DatabaseResponse) {
+	// TODO: Store password reset code
+	_, err := s.db.Exec("INSERT INTO reset_pass (reset_code, user_id) VALUES ($1, $2)", reset_code, user_id)
 	if err != nil {
-		panic(err)
+		databaseResponse.Status = false
+		databaseResponse.Message = err.Error()
 	}
-	row := s.db.QueryRowx("select * from auth_service__reset_pass($1::jsonb)", string(inputData))
-	if err := row.StructScan(&databaseResponse); err != nil {
-		println(err.Error())
-	}
+	databaseResponse.Status = true
+	databaseResponse.Message = "Password reset code stored"
 	return databaseResponse
 }
 
 func (s *authService) ResetPassword(data *models.PassResetCodeRequest) (databaseResponse models.DatabaseResponse) {
-  /* inputData, err := json.Marshal(data)
-  if err != nil {
-    panic(err)
-  } */
-  return databaseResponse
+	return databaseResponse
 }
 
-// INFO: NewAuthService returns a new instance of AuthService
+// INFO: Creates and returns a new instance of AuthService
 func NewAuthService(db *sqlx.DB) AuthService {
 	var service AuthService
 	service = &authService{

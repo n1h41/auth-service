@@ -13,7 +13,7 @@ var userSchema = `
     ID SERIAL PRIMARY KEY,
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
-    name TEXT not null,
+    name TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
   );
@@ -28,7 +28,6 @@ var resetPasswordSchema = `
   `
 
 func InitDB(config *config.Config) (db *sqlx.DB, err error) {
-	// dsn := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v", config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DBName, config.DBSSLMode)
 	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v", config.DBHost, config.DBUser, config.DBPassword, config.DBName)
 	db, err = sqlx.Connect("postgres", dsn)
 
@@ -38,12 +37,12 @@ func InitDB(config *config.Config) (db *sqlx.DB, err error) {
 
 	createSchema(db)
 
-	fmt.Println("Database connected")
+	fmt.Println("DATABASE CONNECTED")
 	return
 }
 
 func createSchema(db *sqlx.DB) {
 	db.MustExec(userSchema)
   db.MustExec(resetPasswordSchema)
-	fmt.Println("Schema created successfully")
+	fmt.Println("SCHEMA CREATED SUCCESSFULLY")
 }
