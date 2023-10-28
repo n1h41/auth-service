@@ -1,7 +1,7 @@
 package models
 
 type PassResetCodeRequest struct {
-	UserId      int64  `json:"user_id" validate:"required"`
-	ResetCode   string `json:"reset_code" validate:"required"`
-	NewPassword string `json:"new_password" validate:"required"`
+	UserId      int64  `json:"userId" validate:"required"`
+	ResetCode   string `json:"resetCode" validate:"required"`
+	NewPassword string `json:"newPassword" validate:"required"`
 }
