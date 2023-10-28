@@ -66,7 +66,7 @@ func (controller *authController) Login(c *gin.Context) {
 		return
 	}
 	//
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Login successfull", "status": true, "data": gin.H{"token": token}})
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Login successful", "status": true, "data": gin.H{"token": token}})
 }
 
 func (controller *authController) GetResetPasswordLink(c *gin.Context) {
@@ -115,8 +115,9 @@ func (controller *authController) ResetPassword(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid user id"})
 	}
 	databaseRequest := models.PassResetCodeRequest{
-		UserId:    userId,
-		ResetCode: c.Param("resetCode"),
+		UserId:      userId,
+		ResetCode:   c.Param("resetCode"),
+		NewPassword: c.Query("newPassword"),
 	}
 	databaseResponse := controller.authService.ResetPassword(&databaseRequest)
 	if databaseResponse.Status == false {

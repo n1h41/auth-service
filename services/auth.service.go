@@ -54,8 +54,8 @@ func (s *authService) CheckIfUserExists(email string) bool {
 	return false
 }
 
+// Store password reset code
 func (s *authService) StorePasswordResetCode(reset_code string, user_id int) (databaseResponse models.DatabaseResponse) {
-	// TODO: Store password reset code
 	_, err := s.db.Exec("INSERT INTO reset_pass (reset_code, user_id) VALUES ($1, $2)", reset_code, user_id)
 	if err != nil {
 		databaseResponse.Status = false
@@ -70,7 +70,7 @@ func (s *authService) ResetPassword(data *models.PassResetCodeRequest) (database
 	return databaseResponse
 }
 
-// INFO: Creates and returns a new instance of AuthService
+// Creates and returns a new instance of AuthService
 func NewAuthService(db *sqlx.DB) AuthService {
 	var service AuthService
 	service = &authService{
