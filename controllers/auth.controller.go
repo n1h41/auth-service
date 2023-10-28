@@ -113,6 +113,7 @@ func (controller *authController) ResetPassword(c *gin.Context) {
 	userId, err := strconv.ParseInt(c.Query("userId"), 10, 64)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid user id"})
+    return
 	}
 	databaseRequest := models.PassResetCodeRequest{
 		UserId:      userId,
@@ -121,7 +122,8 @@ func (controller *authController) ResetPassword(c *gin.Context) {
 	}
 	databaseResponse := controller.authService.ResetPassword(&databaseRequest)
 	if databaseResponse.Status == false {
-		panic(databaseResponse.Message)
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": databaseResponse.Message})
+    return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"status": true, "message": "Password reset successfull"})
 }

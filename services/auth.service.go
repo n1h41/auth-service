@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"n1h41/auth-service/models"
 
 	"github.com/jmoiron/sqlx"
@@ -22,12 +23,12 @@ type authService struct {
 func (s *authService) RegisterUser(data *models.RegisterRequest) (databaseResponse models.DatabaseResponse) {
 	inputData, err := json.Marshal(data)
 	if err != nil {
-		println(err)
+		fmt.Println(err.Error())
 	}
 	inputDataString := string(inputData)
 	row := s.db.QueryRowx("SELECT * FROM auth_service_register_user($1::jsonb)", inputDataString)
 	if err := row.StructScan(&databaseResponse); err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 	}
 	return databaseResponse
 }
@@ -45,7 +46,7 @@ func (s *authService) CheckIfUserExists(email string) bool {
 	var count int
 	err := s.db.Get(&count, "SELECT 1 FROM users WHERE email = $1", email)
 	if err != nil {
-		println(err.Error())
+		fmt.Println(err.Error())
 		return false
 	}
 	if count > 0 && count < 2 {
@@ -67,6 +68,15 @@ func (s *authService) StorePasswordResetCode(reset_code string, user_id int) (da
 }
 
 func (s *authService) ResetPassword(data *models.PassResetCodeRequest) (databaseResponse models.DatabaseResponse) {
+	databaseRequestParams, err := json.Marshal(data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	databaseRequestParamsString := string(databaseRequestParams)
+	row := s.db.QueryRowx("SELECT * FROM auth_service_reset_pass($1::jsonb)", databaseRequestParamsString)
+	if err := row.StructScan(&databaseResponse); err != nil {
+		fmt.Println(err.Error())
+	}
 	return databaseResponse
 }
 
