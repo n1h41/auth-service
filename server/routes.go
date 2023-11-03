@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"n1h41/auth-service/config"
 	"n1h41/auth-service/controllers"
 	"n1h41/auth-service/helpers"
@@ -18,6 +19,7 @@ func SetupRouter(config *config.Config) *gin.Engine {
 	db, err := helpers.InitDB(config)
 
 	if err != nil {
+    fmt.Println("Error connecting to database")
 		panic(err)
 	}
 

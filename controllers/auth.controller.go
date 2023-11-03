@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"n1h41/auth-service/models"
 	"n1h41/auth-service/services"
 	"n1h41/auth-service/utils"
@@ -89,12 +90,14 @@ func (controller *authController) GetResetPasswordLink(c *gin.Context) {
 		ResetCode: uuid,
 	}
 
+  // INFO: Saving pass reset code to database
 	databaseResponse := controller.authService.StorePasswordResetCode(databaseRequest.ResetCode, int(user.ID))
 
 	if databaseResponse.Status == false {
-		panic(databaseResponse.Message)
+		log.Panicln(databaseResponse.Message)
 	}
 
+  // INFO: Sending mail
 	mail := mail.NewMessage()
 	mail.SetHeader("From", "auth-service@gmail.com")
 	mail.SetHeader("To", user.Email)
@@ -102,18 +105,18 @@ func (controller *authController) GetResetPasswordLink(c *gin.Context) {
 	mail.SetBody("text/html", "<h1>Reset password link</h1><p>Click on the link to reset your password</p><a href='"+resetLink+"'>Reset password</a>")
 
 	if err := utils.SendMail(mail); err != nil {
-		panic(err)
+		log.Panicln(err)
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{"status": true, "message": "Reset password link sent to your email"})
 }
 
 func (controller *authController) ResetPassword(c *gin.Context) {
-	// TODO: reset password logic
+	// NOTE: reset password logic
 	userId, err := strconv.ParseInt(c.Query("userId"), 10, 64)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid user id"})
-    return
+		return
 	}
 	databaseRequest := models.PassResetCodeRequest{
 		UserId:      userId,
@@ -123,7 +126,7 @@ func (controller *authController) ResetPassword(c *gin.Context) {
 	databaseResponse := controller.authService.ResetPassword(&databaseRequest)
 	if databaseResponse.Status == false {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "message": databaseResponse.Message})
-    return
+		return
 	}
 	c.IndentedJSON(http.StatusOK, gin.H{"status": true, "message": "Password reset successfull"})
 }
