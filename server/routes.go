@@ -2,12 +2,14 @@ package server
 
 import (
 	"fmt"
-	"n1h41/auth-service/config"
-	"n1h41/auth-service/controllers"
-	"n1h41/auth-service/helpers"
-	"n1h41/auth-service/services"
 
 	"github.com/gin-gonic/gin"
+
+	"n1h41/auth-service/cmd/api/controllers"
+	"n1h41/auth-service/config"
+	authController "n1h41/auth-service/features/auth/controllers"
+	"n1h41/auth-service/features/auth/services"
+	"n1h41/auth-service/internal/db"
 )
 
 func SetupRouter(config *config.Config) *gin.Engine {
@@ -16,21 +18,20 @@ func SetupRouter(config *config.Config) *gin.Engine {
 	router.Use(gin.Recovery())
 
 	// INFO: Initialize database
-	db, err := helpers.InitDB(config)
-
+	db, err := db.InitDB(config)
 	if err != nil {
-    fmt.Println("Error connecting to database")
+		fmt.Println("Error connecting to database")
 		panic(err)
 	}
 
-  // INFO: Status endpoint
+	// INFO: Status endpoint
 	health := controllers.NewHealthController()
 	router.GET("/health", health.GetHealthStatus)
 
-  // INFO: Initialize services and controllers
+	// INFO: Initialize services and controllers
 	// ****
 	authService := services.NewAuthService(db)
-	controllers.NewAuthController(router, authService)
+	authController.NewAuthController(router, authService)
 	// ****
 
 	return router

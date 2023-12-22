@@ -1,8 +1,9 @@
 package utils
 
 import (
-	"n1h41/auth-service/models"
 	"testing"
+
+	"n1h41/auth-service/features/auth/models"
 )
 
 func TestCreateJwtToken(t *testing.T) {

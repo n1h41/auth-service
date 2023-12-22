@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"n1h41/auth-service/config"
-	"n1h41/auth-service/models"
-
 	"github.com/golang-jwt/jwt"
+
+	"n1h41/auth-service/config"
+	"n1h41/auth-service/features/auth/models"
 )
 
 var jwtSecret = []byte("secret")

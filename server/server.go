@@ -6,7 +6,7 @@ import (
 
 func InitServer() {
 	// INFO: Load config
-	config, err := config.LoadConfig("./")
+	config, err := config.LoadConfig("./../../")
 	if err != nil {
 		panic(err)
 	}
